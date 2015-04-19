@@ -34,7 +34,7 @@ print(xt, type = "html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Sun Apr 19 23:29:09 2015 -->
+<!-- Mon Apr 20 00:20:25 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> steps </th> <th> date </th> <th> interval </th>  </tr>
   <tr> <td align="right"> 1 </td> <td align="right">  </td> <td> 2012-10-01 </td> <td align="right">   0 </td> </tr>
@@ -59,7 +59,7 @@ print(xt, type = "html")
 ```
 
 <!-- html table generated in R 3.1.2 by xtable 1.7-4 package -->
-<!-- Sun Apr 19 23:29:09 2015 -->
+<!-- Mon Apr 20 00:20:25 2015 -->
 <table border=1>
 <tr> <th>  </th> <th> date </th> <th> steps </th>  </tr>
   <tr> <td align="right"> 1 </td> <td> 2012-10-02 </td> <td align="right"> 126 </td> </tr>
@@ -158,6 +158,10 @@ nrow(ActivityData[ActivityData$steps == "NA",])
 [1] 2304
 
 *2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.*
+
+*3. Create a new dataset that is equal to the original dataset but with the missing data filled in.*
+
+I will answer both questions simultaneously using a for loop.
 I will use the overall 5-minute interval mean to fill the missing values. To do this I will use the values from the dataframe "AverageStepsPerInterval". Thus, if in the original dataset the value of number of steps is missing, I will substitute it will the average number of steps for that 5-minute interval:
 
 
@@ -172,4 +176,75 @@ for (i in 1:nrow(ActivityData)){
         ActivityData2$steps[i] <- newvalue
     }
 }
+```
+<br>
+
+> The new dataframe with the missing values substituted with the specific 5-minute interval average was named `ActivityData2`.
+<br>
+
+*4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.*
+
+Drawing the histogram based on the dataset with no missing values...
+
+```r
+StepsPerDay2 <- aggregate(steps ~ date, data = ActivityData2, sum)
+
+hist(StepsPerDay2$steps, xlab="total number of steps", 
+     main="Histogram of total number of steps taken each day (no missing values)", 
+     col="blue")
+```
+
+![plot of chunk unnamed-chunk-11](figure/unnamed-chunk-11-1.png) 
+<br>
+
+And calculating and reporting the mean and median total number of steps taken per day.
+Mean:
+
+```r
+Mean_StepsPerDay2 <- mean(StepsPerDay2$steps)
+show(Mean_StepsPerDay2)
+```
+
+[1] 10766.19
+Median:
+
+```r
+Median_StepsPerDay2 <- median(StepsPerDay2$steps)
+show(Median_StepsPerDay2)
+```
+
+[1] 10766.19
+<br>
+*Do these values differ from the estimates from the first part of the assignment?*
+The mean value does not change, but the median does because I have filled the original dataset with new values that made a change in the sample median.
+
+```r
+## Summarizing the dataset (daily steps average) before missing data was filled in
+summary(StepsPerDay$steps)
+```
+
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+     41    8841   10760   10770   13290   21190 
+
+```r
+## and after
+summary(StepsPerDay2$steps)
+```
+
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+     41    9819   10770   10770   12810   21190 
+
+*What is the impact of imputing missing data on the estimates of the total daily number of steps?*
+There is an impact on the quartiles and the median, but not on the minimum, maximum or mean values.
+<br>
+
+### Are there differences in activity patterns between weekdays and weekends?
+*1. Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.*
+To create the new factor, I will use the fuction weekdays to the column "date" of the dataset "ActivityData2". The resultant vector will be added to the dataset.
+
+```r
+week_vector <- weekdays(as.Date(ActivityData2$date))
+
+## adding the vector as a new column of ActivityData2
+ActivityDataNew <- cbind(ActivityData2,week_vector)
 ```
